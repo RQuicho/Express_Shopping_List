@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res, next) => {
     try {
-        if (!req.body.name) {
+        if (!req.body.name || !req.body.price) {
             throw new ExpressError('Name and Price required', 400);
         }
         const newItem = { name: req.body.name, price: req.body.price };
@@ -18,6 +18,33 @@ router.post('/', (req, res, next) => {
     } catch(e) {
         return next(e);
     }
+});
+
+router.get('/:name', (req, res) => {
+    const foundItem = items.find(item => item.name === req.params.name);
+    if (foundItem === undefined) {
+        throw new ExpressError('Item not found', 404);
+    }
+    res.json(foundItem);
+});
+
+router.patch('/:name', (req, res) => {
+    const foundItem = items.find(item => item.name === req.params.name);
+    if (foundItem === undefined) {
+        throw new ExpressError('Item not found', 404);
+    }
+    foundItem.name = req.body.name;
+    foundItem.price = req.body.price;
+    res.json({ updated: foundItem });
+});
+
+router.delete('/:name', (req, res) => {
+    const foundItem = items.findIndex(item => item.name === req.params.name);
+    if (foundItem === -1) {
+        throw new ExpressError('Item not found', 404);
+    }
+    items.splice(foundItem, 1); // foundItem is the index of that item. splice removes one element at that index.
+    res.json({ message: "Deleted" });
 });
 
 
